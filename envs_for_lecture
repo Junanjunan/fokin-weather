@@ -1,0 +1,167 @@
+# 0.1 requirements
+    1. node.js 10.0 이상의 버전 -> node -v 로 버전 확인
+    2. npm 6.0 이상의 버전-> npm -v 로 버전 확인
+    3. 안드로이드 스튜디오 (또는 Xcode): 윈도우 또는 리눅스의 경우 (Xcode는 Mac)
+        -> 안드로이드 스튜디오 설치해서 따라오는 시뮬레이터로 어플리케이션 테스트
+        -> 없어도 핸드폰에 Expo(윈도우) 또는 Expo Client(Mac) 이용해서 테스트 할수 있기는 하다.
+
+    - 준비사항 마친후..
+    - React Native 홈페이지를 가서(https://reactnative.dev/docs/getting-started) Expo CLI Quickstart를 실행 -> 
+        
+        어떻게? npm install -g expo-cli
+
+
+# 0.2 Expo vs RN CLI
+    https://reactnative.dev/docs/getting-started 에서 Expo CLI Quickstart 대신에 React Native CLI Quickstart를 실행할 수 도 있는데,
+    이건 React Native를 수동으로 설치하는 것 - Native file들을 좀 세부적으로 다룰 경우 유용
+    기본적으로 Expo는 create-react-app 과 비슷한 것이라 보면 된다.
+
+    Expo 는 모든 native file들을 숨기고 직접 관리해준다. - native file들을 세세히 제어할 수 없다는게 단점
+    Expo는 핸드폰에서 앱을 테스트 할 수 있고, 쉽게 사용하는 것이 가장 큰 장점
+
+    Expo.io 에 접속해서 시작해보자 https://expo.io/
+
+# 0.3 Creating the Project
+    Expo로 프로젝트를 시작하려면, console에 expo init project-name (ex. expo init AwesomeProject)
+
+    1. console을 통해 시작
+     expo init fokin-weather
+
+    -> (expo가 자동생성을 할 수 있기 떄문에)선택지가 나온다: blank, blank(TypeScript), tabs(TypeScript), minimal, minimal(TypeScript)
+    -> 그냥 blank를 선택 (zero 부터 시작할 것이기 때문에)
+        -> 강의에서는 이름 설정할 수 있는 부분이 나오는데, 내가 설치할 떄는 안나옴.
+            {
+                "expo":{
+                    "name":"Fokin Weather App",
+                    "slug": "fokin-weather"
+                }
+            }
+            이렇게 설정해주었음(난 안나옴)
+
+    2. github repository 만들기
+
+    3. vs에서 github랑 연동
+        (- git init 먼저 실행)
+        - git remote add origin [repository 주소]: 
+            git remote add origin https://github.com/Junanjunan/fokin-weather
+             안되면 git 다운 받았는지 확인하고 git 다운받기
+            -> git pull origin main --allow-unrelated-histories (READEME 파일 받아짐) (강의에서는 main 대신 master라고 했으나 버전이 바뀌어서 main으로 해야함)
+
+    --- set up 완료 ---
+
+    app.json: Expo가 읽게 될 configuration 파일임
+
+
+    Expo application 시작
+        1. npm start
+            -> Expo dev tool 이 자동 실행됨
+                안드로이드용 QR코드 생성됨
+            -> Expo 어플로 QR 스캔하면 폰에서 프로젝트를 열고, 앱을 테스트 해볼 수 있다.
+                (ios의 경우 모바일에서 Expo 앱으로 로그인 한 후, 컴퓨터에서 console에서 expo login)
+            -> 만약 컴퓨터에서 테스트 안할거라면 Run on Android device/emulator (Run on iOS simulator) 선택하면 된다 함
+                - Error: Run on Android device/emulator 으로 실행하실 분들은 Android Studio가 제공하는 Virtual Device Emulator (AVD Manager에서 설정 가능) 추가하신 뒤 켜놓고 Run on Android... 실행하셔야 합니다.
+                    https://docs.expo.io/workflow/android-studio-emulator
+
+                Android Studio 실행 -> configure -> AVD Manager 실행 -> 원하는 기기 선택해서 실행하기 -> Run on Android device/emulator 실행 (Tunnel로 해야 된다는데, 나는 오히려 AVD 실행 후 LAN에서 실행했을때 오류 없이 작동 되었음)
+                
+                - 컴퓨터와 핸드폰이 같은 wifi 연결을 가져야 한다.
+
+                - Expo에서 QR코드로 핸드폰도 어플리케이션을 작동시키자
+
+        2. App.js
+            App.js에 있는 <Text></Text> 안에 내용을 수정하면, 시뮬레이터, 핸드폰 모두 변하는 것 확인 가능 (Live Reload)
+            - 핸드폰을 흔들면 개발자 메뉴 접근 가능
+                - Debug Remote JS 있는데, 이게 앱을 느리게 만드니, 개발하는 동안에 사용하지 말자
+
+        * 몇가지 명령어를 살펴보자
+            package.json을 보면
+            scripts": {
+                "start": "expo start",
+                "android": "expo start --android",
+                "ios": "expo start --ios",
+                "web": "expo start --web",
+                "eject": "expo eject"
+            },
+            가 있는데, npm run android, npm run ios 등을 실행할 수 있다.
+                -> 이 명령어들이 expo application을 시뮬레이터에서 실행시켜 준다. (물론, GUI로 클릭해서 실행해도 된다.)
+                eject의 경우, Expo가 native 파일들을 다뤄주는데, eject를 실행하면 Expo를 배제하고 직접 native 파일들을 다룰 수 있다.
+
+
+# 0.5 How does React Native Work?
+    - React Native의 몇가지 규칙들
+        - 우선, <Text></Text>, <View></View> 를 사용하고, div, span등은 사용하지 않는다.
+
+
+# 1.0 Layouts with Flexbox in React Native
+    React Native에서 모든 flex box의 default는 flex-direction:column 이다 (web이랑 반대)
+        - flexDirection: "row"로 바꿔서 web처럼 할 수도 있다.
+
+        flex:1 등은, 화면에서 차지할 비율 설정하는 것
+        같은 View 안에 2개의 View가 있을때 flex:1, flex:3 으로 된다면, flex:1으로 설정한 View는 화면의 1/4, flex:3으로 설정한 View는 화면의 3/4 으로 설정
+
+        (App.js)
+            import { StatusBar } from 'expo-status-bar';
+            import React from 'react';
+            import { StyleSheet, Text, View } from 'react-native';
+
+            export default function App() {
+            return (
+                <View style={styles.container}>
+                <View style={styles.yellowView} />
+                <View style={styles.blueView} />
+                <StatusBar style="auto" />
+                </View>
+            );
+            }
+
+            const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+            },
+            yellowView: {
+                flex: 1,
+                backgroundColor: "yellow"
+            },
+            blueView: {
+                flex: 3,
+                backgroundColor: "blue"
+            }
+            });
+
+
+# 1.1 Loading Screen
+    (Loading.js)
+        import React from "react";
+        import {StyleSheet, Text, View} from "react-native";
+
+
+        export default function Loading() {
+            return (
+            <View style={styles.container}>
+                <Text style={styles.text}>Getting the weather</Text>
+            </View>
+            );
+        }
+
+        const styles = StyleSheet.create({
+            container:{
+                flex: 1,
+                justifyContent: "flex-end",
+                paddingHorizontal: 30,
+                paddingVertical: 100,
+                backgroundColor: "blue"
+            },
+            text: {
+                color: "#2c2c2c",
+                fontSize:30
+            }
+        });
+
+    (App.js)
+        import React from 'react';
+        import Loading from "./Loading";
+
+
+        export default function App() {
+        return <Loading />;
+        }
