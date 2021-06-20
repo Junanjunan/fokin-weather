@@ -170,3 +170,400 @@
         export default function App() {
         return <Loading />;
         }
+
+
+# 1.2 Getting the Location
+    RN 보다 더 기능이 좋은 Expo의 location 을 활용하자(https://docs.expo.io)
+    설치: expo install expo-location
+
+    (App.js)
+        import React from 'react';
+        import Loading from "./Loading";
+        import * as Location from "expo-location";
+
+
+        export default class extends React.Component {
+        getLocation = async() => {
+            const location = await Location.getCurrentPositionAsync();
+            console.log(location);
+        }
+        componentDidMount(){
+            this.getLocation();
+        }
+        render(){
+            return <Loading />;
+        } 
+        }
+
+    -> 여기까지 하면, 아직은 오류 발생...
+    -> User에게 Ask Permission 을 해야 한다고 함
+
+
+# 1.3 Asking for Permissions
+    (App.js)
+        import React from 'react';
+        import {Alert} from "react-native";
+        import Loading from "./Loading";
+        import * as Location from "expo-location";
+
+
+        export default class extends React.Component {
+        getLocation = async() => {
+            try{
+            const response = await Location.requestForegroundPermissionsAsync();     # 비권장으로 바뀐 듯 -> requestPermissionsAsync -> requestForegroundPermissionsAsync로 수정
+            console.log(response);
+            const location = await Location.getCurrentPositionAsync();
+            console.log(location);
+            } catch(error) {
+            Alert.alert("Can't find you.", "So sad");
+            }
+        }
+        componentDidMount(){
+            this.getLocation();
+        }
+        render(){
+            return <Loading />;
+        } 
+        }
+
+        -> 이렇게 해주면, 맨 처음에 위치 확인 허용하는지 화면 뜨고, 허용하면 
+
+            Object {
+            "coords": Object {
+                "accuracy": 15.314000129699707,
+                "altitude": 56.38333847997418,
+                "altitudeAccuracy": 3,
+                "heading": 0,
+                "latitude": 37.5399647,
+                "longitude": 127.0812773,
+                "speed": 0,
+            },
+            "mocked": false,
+            "timestamp": 1624197155171,
+            }
+            이런 정보 얻을 수 있다.
+
+        (App.js)
+        import React from 'react';
+        import {Alert} from "react-native";
+        import Loading from "./Loading";
+        import * as Location from "expo-location";
+
+
+        export default class extends React.Component {
+        getLocation = async() => {
+            try{
+            await Location.requestForegroundPermissionsAsync();
+            const {coords} = await Location.getCurrentPositionAsync();      # {coords} : ES6 의 문법을 사용한 것이라 함
+            console.log(coords.latitude, coords.longitude);
+            } catch(error) {
+            Alert.alert("Can't find you.", "So sad");
+            }
+        }
+        componentDidMount(){
+            this.getLocation();
+        }
+        render(){
+            return <Loading />;
+        } 
+        }
+
+        -> 이렇게 하면 경도, 위도 얻음: 37.5399771 127.081299
+
+    state값 설정해주자
+    (App.js)
+        import React from 'react';
+        import {Alert} from "react-native";
+        import Loading from "./Loading";
+        import * as Location from "expo-location";
+
+
+        export default class extends React.Component {
+        state = {
+            isLoading: true
+        }
+        getLocation = async() => {
+            try{
+            await Location.requestForegroundPermissionsAsync();
+            const {
+                coords: {latitude, longitude}
+            } = await Location.getCurrentPositionAsync();
+            this.setState({isLoading: false})
+            console.log(coords.latitude, coords.longitude);
+            } catch(error) {
+            Alert.alert("Can't find you.", "So sad");
+            }
+        }
+        componentDidMount(){
+            this.getLocation();
+        }
+        render(){
+            const {isLoading} = this.state;
+            return isLoading ? <Loading />: null;
+        } 
+        }
+
+
+# 1.4 Getting the Weather
+    API 얻어올 사이트: https://openweathermap.org/
+    data fetch를 위해 axios 를 이용하자
+        npm install axios
+
+    (App.js)
+        import React from 'react';
+        import {Alert} from "react-native";
+        import Loading from "./Loading";
+        import * as Location from "expo-location";
+        import axios from "axios"
+
+
+        const API_KEY = "0c354837c7004ffaf4493deb345ce0e1";
+
+        export default class extends React.Component {
+        state = {
+            isLoading: true
+        };
+        getWeather = async (latitude, longitude) => {
+            const {data} = await axios.get(
+            `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`
+            );
+            console.log(data);
+        };
+        getLocation = async() => {
+            try{
+            await Location.requestForegroundPermissionsAsync();
+            const {
+                coords: {latitude, longitude}
+            } = await Location.getCurrentPositionAsync();
+            this.getWeather(latitude, longitude);
+            this.setState({isLoading: false});
+            } catch(error) {
+            Alert.alert("Can't find you.", "So sad");
+            }
+        };
+        componentDidMount(){
+            this.getLocation();
+        }
+        render(){
+            const {isLoading} = this.state;
+            return isLoading ? <Loading /> : null;
+        } 
+        }
+
+
+# 2.0 Displaying Temperature
+    Weather.js 를 만들건데, prop을 몇개 가질것이므로 prop types를 설치하자 
+    npm install prop-types
+    
+    (Weather.js)
+        import React from "react";
+        import {View, Text, StyleSheet} from "react-native";
+        import PropTypes from "prop-types";
+
+        export default function Weather({temp}){
+            return (
+                <View style={styles.container}>
+                    <Text>{temp}</Text>
+                </View>
+            );
+        }
+
+        Weather.propTypes = {
+            temp:PropTypes.number.isRequired
+        };
+
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center"
+            }
+        });
+
+    (App.js)
+        import React from 'react';
+        import {Alert} from "react-native";
+        import Loading from "./Loading";
+        import * as Location from "expo-location";
+        import axios from "axios";
+        import Weather from "./Weather";
+
+
+        const API_KEY = "0c354837c7004ffaf4493deb345ce0e1";
+
+        export default class extends React.Component {
+        state = {
+            isLoading: true
+        };
+        getWeather = async (latitude, longitude) => {
+            const {data} = await axios.get(
+            `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
+            );
+            this.setState({isLoading:false, temp: data.main.temp})
+        };
+        getLocation = async() => {
+            try{
+            await Location.requestForegroundPermissionsAsync();
+            const {
+                coords: {latitude, longitude}
+            } = await Location.getCurrentPositionAsync();
+            this.getWeather(latitude, longitude);
+            this.setState({isLoading: false});
+            } catch(error) {
+            Alert.alert("Can't find you.", "So sad");
+            }
+        };
+        componentDidMount(){
+            this.getLocation();
+        }
+        render(){
+            const {isLoading, temp} = this.state;
+            return isLoading ? <Loading /> : <Weather temp={Math.round(temp)} />;
+        } 
+        }
+
+
+# 2.1 Getting the Condition Names
+
+    (Weather.js)
+        import React from "react";
+        import {View, Text, StyleSheet} from "react-native";
+        import PropTypes from "prop-types";
+
+        export default function Weather({temp}){
+            return (
+                <View style={styles.container}>
+                    <Text>{temp}</Text>
+                </View>
+            );
+        }
+
+        Weather.propTypes = {
+            temp:PropTypes.number.isRequired,
+            condition: PropTypes.oneOf([
+                "Thunderstorm", 
+                "Drizzle", 
+                "Snow", 
+                "Atmosphere", 
+                "Clear", 
+                "Clouds",
+                "Haze",
+                "Mist",
+                "Dust"
+            ]).isRequired
+        };
+
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center"
+            }
+        });
+
+    (App.js)
+        import React from 'react';
+        import {Alert} from "react-native";
+        import Loading from "./Loading";
+        import * as Location from "expo-location";
+        import axios from "axios";
+        import Weather from "./Weather";
+
+
+        const API_KEY = "0c354837c7004ffaf4493deb345ce0e1";
+
+        export default class extends React.Component {
+        state = {
+            isLoading: true
+        };
+        getWeather = async (latitude, longitude) => {
+            const {
+            data: {
+                main: {temp},
+            weather}
+            } = await axios.get(
+            `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
+            );
+            this.setState({
+            isLoading:false, 
+            condition: weather[0].main, 
+            temp: main.temp})
+        };
+        getLocation = async() => {
+            try{
+            await Location.requestForegroundPermissionsAsync();
+            const {
+                coords: {latitude, longitude}
+            } = await Location.getCurrentPositionAsync();
+            this.getWeather(latitude, longitude);
+            this.setState({isLoading: false});
+            } catch(error) {
+            Alert.alert("Can't find you.", "So sad");
+            }
+        };
+        componentDidMount(){
+            this.getLocation();
+        }
+        render(){
+            const {isLoading, temp, condition} = this.state;
+            return isLoading ? <Loading /> : <Weather temp={Math.round(temp)} condition={condition} />;
+        } 
+        }
+
+
+# 2.2 Icons and Styling
+    https://expo.github.io/vector-icons/ 를 가면 icon directory가 있다.
+
+    (Weather.js)
+
+        import React from "react";
+        import {View, Text, StyleSheet} from "react-native";
+        import PropTypes from "prop-types";
+        import {MaterialCommunityIcons} from "@expo/vector-icons";
+
+        export default function Weather({temp}){
+            return (
+                <View style={styles.container}>
+                    <View style={styles.halfContainer}>
+                        <MaterialCommunityIcons size={86} name="weather-lightning-rainy" />      
+                        <Text style={styles.temp}>{temp}</Text>
+                    </View>
+                    <View style={styles.halfContainer} />
+                </View>
+            );
+        }
+
+        Weather.propTypes = {
+            temp:PropTypes.number.isRequired,
+            condition: PropTypes.oneOf([
+                "Thunderstorm", 
+                "Drizzle", 
+                "Snow", 
+                "Atmosphere", 
+                "Clear", 
+                "Clouds",
+                "Haze",
+                "Mist",
+                "Dust"
+            ]).isRequired
+        };
+
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center"
+            },
+            temp:{
+                fontSize: 36
+            },
+            halfContainer: {
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center"
+            }
+        });
+
+
+# 2.3 Background Gradient
+    expo install expo-linear-gradient
