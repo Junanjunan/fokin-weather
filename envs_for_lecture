@@ -10,6 +10,11 @@
         
         어떻게? npm install -g expo-cli
 
+* 라이젠 CPU에서 안드로이드 스튜디오 에뮬레이터 실행 안될 때 https://wonnyhouse.tistory.com/198
+    에러: Unable to run Android Emulator Hypervisor Driver for AMD Processors installer: Cannot start process, the working directory does not exist.
+    BIOS에서 SVM Mode를 Enabled 해주어야 한다.
+        내 컴에서 구체적인 방법
+            Bios (Ctrl+F5) -> Advanced(F7) -> OC(Overclocking Settings) -> CPU Features -> SVM Mode -> Enabled -> SETTINGS -> Save Changes 
 
 # 0.2 Expo vs RN CLI
     https://reactnative.dev/docs/getting-started 에서 Expo CLI Quickstart 대신에 React Native CLI Quickstart를 실행할 수 도 있는데,
