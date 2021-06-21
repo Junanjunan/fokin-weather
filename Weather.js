@@ -1,26 +1,46 @@
 import React from "react";
-import {View, Text, StyleSheet} from "react-native";
+import {View, Text, StyleSheet, StatusBar} from "react-native";
 import PropTypes from "prop-types";
 import {LinearGradient} from 'expo-linear-gradient';
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 
-export default function Weather({temp}){
+
+const weatherOptions = {
+    Haze: {
+        iconName:"weather-hail",
+        gradient: ['rgba(0,0,0,0.8)', 'transparent']
+    },
+    Snow:{
+        iconName: "weather-hail",
+        gradient:["blue"]
+    }
+}
+
+
+export default function Weather({temp, condition}){
     return (
-        <View style={styles.container}>
+            <LinearGradient
+                colors={[weatherOptions[condition].gradient]}
+                style={styles.container}
+            >
+            <StatusBar barStyle="light-content" />
             <View style={styles.halfContainer}>
-                <MaterialCommunityIcons size={86} name="weather-lightning-rainy" />      
+                <MaterialCommunityIcons size={86} name={weatherOptions[condition].iconName} color="white" />      
                 <Text style={styles.temp}>{temp}</Text>
             </View>
             <View style={styles.halfContainer} />
-        </View>
+                <Text style={styles.title}>Title</Text>
+                <Text style={styles.subtitle}>Subtitle</Text>
+            </LinearGradient>
     );
 }
 
 Weather.propTypes = {
-    temp:PropTypes.number.isRequired,
+    temp: PropTypes.number.isRequired,
     condition: PropTypes.oneOf([
         "Thunderstorm", 
-        "Drizzle", 
+        "Drizzle",
+        "Rain", 
         "Snow", 
         "Atmosphere", 
         "Clear", 
@@ -44,5 +64,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center"
+    },
+    title: {
+        color: "white"
+    },
+    subtitle: {
+        color: "white"
     }
 });

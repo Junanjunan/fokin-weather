@@ -567,3 +567,196 @@
 
 # 2.3 Background Gradient
     expo install expo-linear-gradient
+
+    (Weather.js)
+        import React from "react";
+        import {View, Text, StyleSheet, StatusBar} from "react-native";
+        import PropTypes from "prop-types";
+        import {LinearGradient} from 'expo-linear-gradient';
+        import {MaterialCommunityIcons} from "@expo/vector-icons";
+
+        export default function Weather({temp}){
+            return (
+                    <LinearGradient
+                        colors={['rgba(0,0,0,0.8)', 'transparent']}
+                        style={styles.container}
+                    >
+                    <StatusBar barStyle="light-content" />
+                    <View style={styles.halfContainer}>
+                        <MaterialCommunityIcons size={86} name="weather-lightning-rainy" />      
+                        <Text style={styles.temp}>{temp}</Text>
+                    </View>
+                    <View style={styles.halfContainer} />
+                    </LinearGradient>
+            );
+        }
+
+        Weather.propTypes = {
+            temp:PropTypes.number.isRequired,
+            condition: PropTypes.oneOf([
+                "Thunderstorm", 
+                "Drizzle", 
+                "Snow", 
+                "Atmosphere", 
+                "Clear", 
+                "Clouds",
+                "Haze",
+                "Mist",
+                "Dust"
+            ]).isRequired
+        };
+
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center"
+            },
+            temp:{
+                fontSize: 36
+            },
+            halfContainer: {
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center"
+            }
+        });
+
+    (Loading.js)
+        import React from "react";
+        import {StyleSheet, Text, View, StatusBar} from "react-native";
+
+
+        export default function Loading() {
+            return (
+            <View style={styles.container}>
+                <StatusBar barStyle="dark-content" />
+                <Text style={styles.text}>Getting the weather!!!</Text>
+            </View>
+            );
+        }
+
+        const styles = StyleSheet.create({
+            container:{
+                flex: 1,
+                justifyContent: "flex-end",
+                paddingHorizontal: 30,
+                paddingVertical: 100,
+                backgroundColor: "green"
+            },
+            text: {
+                color: "#4630eb",
+                fontSize:50
+            }
+        });
+
+
+    (Weather.js)
+        import React from "react";
+        import {View, Text, StyleSheet, StatusBar} from "react-native";
+        import PropTypes from "prop-types";
+        import {LinearGradient} from 'expo-linear-gradient';
+        import {MaterialCommunityIcons} from "@expo/vector-icons";
+
+
+        const weatherOptions = {
+            Haze: {
+                iconName:"weather-hail",
+                gradient: ['rgba(0,0,0,0.8)', 'transparent']
+            },
+              Thunderstorm: {
+                iconName: "",
+                gradient: []
+            },
+            Drizzle: {
+                iconName: "",
+                gradient: []
+            },
+            Rain: {
+                iconName: "",
+                gradient: []
+            },
+            Snow: {
+                iconName: "",
+                gradient: []
+            },
+            Atmosphere: {
+                iconName: "",
+                gradient: []
+            },
+            Clear: {
+                iconName: "",
+                gradient: []
+            },
+            Clouds: {
+                iconName: "",
+                gradient: []
+            },
+            Haze: {
+                iconName: "",
+                gradient: []
+            },
+            Mist: {
+                iconName: "",
+                gradient: []
+            },
+            Dust: {
+                iconName: "",
+                gradient: []
+            }
+            };
+        }
+
+
+        export default function Weather({temp, condition}){
+            return (
+                    <LinearGradient
+                        colors={[weatherOptions[condition].gradient]}
+                        style={styles.container}
+                    >
+                    <StatusBar barStyle="light-content" />
+                    <View style={styles.halfContainer}>
+                        <MaterialCommunityIcons 
+                            size={86} 
+                            name={weatherOptions[condition].iconName}
+                            color="white"
+                         />      
+                        <Text style={styles.temp}>{temp}</Text>
+                    </View>
+                    <View style={styles.halfContainer} />
+                    </LinearGradient>
+            );
+        }
+
+        Weather.propTypes = {
+            temp:PropTypes.number.isRequired,
+            condition: PropTypes.oneOf([
+                "Thunderstorm", 
+                "Drizzle", 
+                "Snow", 
+                "Atmosphere", 
+                "Clear", 
+                "Clouds",
+                "Haze",
+                "Mist",
+                "Dust"
+            ]).isRequired
+        };
+
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center"
+            },
+            temp:{
+                fontSize: 36
+            },
+            halfContainer: {
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center"
+            }
+        });
+
+이렇게 하라는데, condition을 넣으면 오류가 난다
